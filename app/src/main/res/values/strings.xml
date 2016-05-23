@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Assignment3</string>
+    <string name="api_key">Iqvkz5BvQ1yWgaV07uB0Xas4VPe9ngsinkns2AbP</string>
+    <string name="api_endPoint"> https://api.nasa.gov/planetary/earth/imagery/</string>
 </resources>
