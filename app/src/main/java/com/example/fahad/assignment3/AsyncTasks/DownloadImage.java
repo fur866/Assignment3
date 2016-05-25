@@ -79,7 +79,7 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
             is = connection.getInputStream();
             String stringResult = parseStream(is, 200);
             Log.d("Here", stringResult);
-            return getImage(stringResult);
+            return fetchImage(stringResult);
         }
         catch (MalformedURLException e)
         {
@@ -112,7 +112,7 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
         return result.toString();
     }
 
-    private RequestCreator getImage(String imageURL)
+    private RequestCreator fetchImage(String imageURL)
     {
         try {
             JSONObject object = new JSONObject(imageURL);
