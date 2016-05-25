@@ -30,6 +30,7 @@ import java.util.ArrayList;
  */
 public class DownloadImage extends AsyncTask<String,Void,String>{
 
+    private
     @Override
     protected String doInBackground(String... args) {
         Uri.Builder builder = new Uri.Builder();
