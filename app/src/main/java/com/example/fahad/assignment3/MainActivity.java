@@ -21,9 +21,4 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.satelliteFragment, new SatelliteFragment(getApplicationContext()));
         fragmentTransaction.commit();
     }
-
-    public void performNASARequest()
-    {
-
-    }
 }

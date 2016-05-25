@@ -1,12 +1,16 @@
 package com.example.fahad.assignment3.AsyncTasks;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.example.fahad.assignment3.R;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,11 +32,19 @@ import java.util.ArrayList;
 /**
  * Created by Fahad on 23/05/2016.
  */
-public class DownloadImage extends AsyncTask<String,Void,String>{
+public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
 
-    private
+    private Context context;
+    private ImageView imageView;
+
+    public DownloadImage(Context context,ImageView imageView)
+    {
+        this.context = context;
+        this.imageView = imageView;
+    }
+
     @Override
-    protected String doInBackground(String... args) {
+    protected RequestCreator doInBackground(String... args) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https");
 
@@ -66,8 +78,8 @@ public class DownloadImage extends AsyncTask<String,Void,String>{
 
             is = connection.getInputStream();
             String stringResult = parseStream(is, 200);
-            return stringResult;
-
+            Log.d("Here", stringResult);
+            return getImage(stringResult);
         }
         catch (MalformedURLException e)
         {
@@ -100,27 +112,26 @@ public class DownloadImage extends AsyncTask<String,Void,String>{
         return result.toString();
     }
 
+    private RequestCreator getImage(String imageURL)
+    {
+        try {
+            JSONObject object = new JSONObject(imageURL);
+
+                Log.d("Here2", object.getString("url"));
+                return Picasso.with(this.context)
+                        .load(object.getString("url"));
+
+
+        }
+        catch(JSONException e)
+        {
+            Log.e("JSONException", e.toString());
+        }
+        return null;
+    }
+
     @Override
-    protected void onPostExecute(String result) {
-        Log.d("Here1",result);
-//        try {
-//            JSONArray array = new JSONArray(result);
-//            //  list.clear();
-//            this.listQuestions = new ArrayList<QuestionResponseModel>();
-//            for(int i = 0; i < array.length(); i++)
-//            {
-//                JSONObject object = array.getJSONObject(i);
-//                Log.d("Here p: ",object.getString("question"));
-//                this.listQuestions.add(new QuestionResponseModel(object.getString("question"),object.getString("answer"),object.getString("imageURL")));
-//            }
-//
-//            Intent intent = new Intent(getApplicationContext(),HistoryActivity.class);
-//            intent.putExtra("QuestionResponseArray",this.listQuestions);//downloadTask.getList());
-//            startActivity(intent);
-//        }
-//        catch(JSONException e)
-//        {
-//
-//        }
+    protected void onPostExecute(RequestCreator creator) {
+       creator.into(this.imageView);
     }
 }
