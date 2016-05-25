@@ -2,6 +2,7 @@ package com.example.fahad.assignment3.Fragments;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,6 +14,12 @@ import android.widget.ImageView;
 import com.example.fahad.assignment3.AsyncTasks.DownloadImage;
 import com.example.fahad.assignment3.R;
 import com.squareup.picasso.RequestCreator;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by Fahad on 23/05/2016.
@@ -39,18 +46,35 @@ public class SatelliteFragment extends Fragment {
 
         this.longitude = "150.8931239";
         this.latitude = "-34.424984";
-        this.date = "2015-05-01";
         ImageView imageView = (ImageView) view.findViewById(R.id.satelliteImage);
-        performNASARequest(imageView);
+        performNASARequestSequence(imageView);
 
         return view;
     }
 
 
-    public void performNASARequest(ImageView imageView)
+    public void performNASARequest(ImageView imageView, String date)
     {
-        new DownloadImage(getContext(),imageView).execute(api_endPoint,longitude,latitude,date,api_key);
+        try {
+            new DownloadImage(getContext(), imageView).execute(api_endPoint, longitude, latitude, date, api_key);
+        }
+        catch(Exception e){}
     }
+
+    public void performNASARequestSequence(ImageView imageView)
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR,16);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        for(int i = 0; i < 5; i++)
+        {
+            calendar.add(Calendar.DAY_OF_YEAR,-16);
+            Log.d("Here",formatter.format(calendar.getTime()));
+            performNASARequest(imageView,formatter.format(calendar.getTime()));
+        }
+    }
+
     public void setLatitude(String latitude)
     {
         this.latitude = latitude;
