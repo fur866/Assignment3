@@ -4,39 +4,53 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.fahad.assignment3.AsyncTasks.DownloadImage;
+import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.R;
 import com.squareup.picasso.RequestCreator;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by Fahad on 23/05/2016.
  */
-public class SatelliteFragment extends Fragment {
+public class SatelliteFragment extends Fragment implements AsyncResponse{
 
     private String latitude;
     private String longitude;
-    private String date;
-    private final String api_key;//getSystem().getString(R.string.api_key);
-    private final String api_endPoint;//getResources().getString(R.string.api_endPoint);
+    private String api_key;
+    private String api_endPoint;
+    private HashMap<String,RequestCreator> images;
+    private ImageView imageView;
+    private TextView textView;
 
-    public SatelliteFragment(Context context)
+    @Override
+    public void onCreate(Bundle bundles)
     {
-        Resources resources = context.getResources();
+        super.onCreate(bundles);
+        Resources resources = getContext().getResources();
         api_key = resources.getString(R.string.api_key);
         api_endPoint = resources.getString(R.string.api_endPoint);
+        this.images = new HashMap<String, RequestCreator>();
     }
 
     @Override
@@ -46,22 +60,31 @@ public class SatelliteFragment extends Fragment {
 
         this.longitude = "150.8931239";
         this.latitude = "-34.424984";
-        ImageView imageView = (ImageView) view.findViewById(R.id.satelliteImage);
-        performNASARequestSequence(imageView);
+        this.imageView = (ImageView) view.findViewById(R.id.satelliteImage);
+        this.textView = (TextView) view.findViewById(R.id.satelliteText);
+        performNASARequestSequence();
 
         return view;
     }
 
-
-    public void performNASARequest(ImageView imageView, String date)
+    @Override
+    public void processFinish(RequestCreator image,String date)
     {
-        try {
-            new DownloadImage(getContext(), imageView).execute(api_endPoint, longitude, latitude, date, api_key);
+        this.images.put(date,image);
+        if(this.images.size() >=  5)
+        {
+            showImagesSequentially();
         }
-        catch(Exception e){}
     }
 
-    public void performNASARequestSequence(ImageView imageView)
+    public void performNASARequest(String date)
+    {
+        DownloadImage image =  new DownloadImage(getContext());
+        image.delegate = this;
+        image.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,api_endPoint, longitude, latitude, date, api_key);
+    }
+
+    public void performNASARequestSequence()
     {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR,16);
@@ -70,8 +93,10 @@ public class SatelliteFragment extends Fragment {
         for(int i = 0; i < 5; i++)
         {
             calendar.add(Calendar.DAY_OF_YEAR,-16);
-            Log.d("Here",formatter.format(calendar.getTime()));
-            performNASARequest(imageView,formatter.format(calendar.getTime()));
+           // Log.d("Here",formatter.format(calendar.getTime()));
+            performNASARequest(formatter.format(calendar.getTime()));
+            this.latitude = "51.507351";
+            this.longitude = "-0.127758";
         }
     }
 
@@ -83,11 +108,6 @@ public class SatelliteFragment extends Fragment {
     public void setLongitude(String longitude)
     {
         this.longitude = longitude;
-    }
-
-    public void setDate(String date)
-    {
-        this.date = date;
     }
 
     public String getLatitude()
@@ -110,8 +130,24 @@ public class SatelliteFragment extends Fragment {
         return this.api_endPoint;
     }
 
-    public String getDate()
+    private void showImagesSequentially()
     {
-        return this.date;
+            Runnable timerRunnable = new Runnable() {
+
+                @Override
+                public void run() {
+                    for(Map.Entry<String, RequestCreator> entry : images.entrySet()) {
+                        final RequestCreator value = entry.getValue();
+                        final String key = entry.getKey();
+                        final Handler timerHandler = new Handler();
+                        value.into(imageView);
+                        textView.setText(key);
+                        Log.d("Here",key);
+                        //timerHandler.postDelayed(this, 5000);
+                        SystemClock.sleep(1000);
+                }
+            };
+        };
+        timerRunnable.run();
     }
 }

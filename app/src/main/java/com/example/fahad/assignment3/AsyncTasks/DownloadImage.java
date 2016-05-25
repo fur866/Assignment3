@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.R;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -35,16 +36,20 @@ import java.util.ArrayList;
 public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
 
     private Context context;
-    private ImageView imageView;
+    private RequestCreator image;
+    private String date;
+    public AsyncResponse delegate = null;
 
-    public DownloadImage(Context context,ImageView imageView)
+    public DownloadImage(Context context)
     {
         this.context = context;
-        this.imageView = imageView;
     }
 
     @Override
     protected RequestCreator doInBackground(String... args) {
+        this.date = args[3];
+
+
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https");
 
@@ -78,7 +83,6 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
 
             is = connection.getInputStream();
             String stringResult = parseStream(is, 200);
-            Log.d("Here", stringResult);
             return fetchImage(stringResult);
         }
         catch (MalformedURLException e)
@@ -116,8 +120,6 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
     {
         try {
             JSONObject object = new JSONObject(imageURL);
-
-                Log.d("Here2", object.getString("url"));
                 return Picasso.with(this.context)
                         .load(object.getString("url"));
 
@@ -131,7 +133,7 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
     }
 
     @Override
-    protected void onPostExecute(RequestCreator creator) {
-       creator.into(this.imageView);
+    protected void onPostExecute(RequestCreator image) {
+        this.delegate.processFinish(image,this.date);
     }
 }
