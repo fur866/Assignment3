@@ -1,7 +1,12 @@
 package com.example.fahad.assignment3;
 
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.FrameLayout;
+
+import com.example.fahad.assignment3.Fragments.SatelliteFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -9,5 +14,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.satelliteFragment, new SatelliteFragment(getApplicationContext()));
+        fragmentTransaction.commit();
+    }
+
+    public void performNASARequest()
+    {
+
     }
 }
