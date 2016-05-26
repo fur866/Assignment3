@@ -2,6 +2,8 @@ package com.example.fahad.assignment3.Fragments;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,16 +19,23 @@ import android.widget.TextView;
 import com.example.fahad.assignment3.AsyncTasks.DownloadImage;
 import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.R;
+import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -39,7 +48,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
     private String longitude;
     private String api_key;
     private String api_endPoint;
-    private HashMap<String,RequestCreator> images;
+    private HashMap<String,Bitmap> images;
     private ImageView imageView;
     private TextView textView;
 
@@ -50,7 +59,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
         Resources resources = getContext().getResources();
         api_key = resources.getString(R.string.api_key);
         api_endPoint = resources.getString(R.string.api_endPoint);
-        this.images = new HashMap<String, RequestCreator>();
+        this.images = new HashMap<String, Bitmap>();
     }
 
     @Override
@@ -68,13 +77,15 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
     }
 
     @Override
-    public void processFinish(RequestCreator image,String date)
+    public void processFinish(Bitmap image, String date)
     {
-        this.images.put(date,image);
-        if(this.images.size() >=  5)
-        {
-            showImagesSequentially();
-        }
+            this.images.put(date,image);
+            Log.d("Here",String.valueOf(images.size()));
+            if(images.size() >=  5)
+            {
+                showImagesSequentially();
+            }
+
     }
 
     public void performNASARequest(String date)
@@ -132,22 +143,35 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
 
     private void showImagesSequentially()
     {
-            Runnable timerRunnable = new Runnable() {
+//        for (final Map.Entry<String, Bitmap> entry : images.entrySet()) {
+//
+//            final Bitmap value = entry.getValue();
+//            final String key = entry.getKey();
 
-                @Override
-                public void run() {
-                    for(Map.Entry<String, RequestCreator> entry : images.entrySet()) {
-                        final RequestCreator value = entry.getValue();
-                        final String key = entry.getKey();
-                        final Handler timerHandler = new Handler();
-                        value.into(imageView);
+
+//            handler.postDelayed(new Runnable(){
+//                public void run(){
+//                    imageView.setImageBitmap(value);
+//                    textView.setText(key);
+//                    Log.d("here", key);
+//
+//                    handler.postDelayed(this, 500);
+//                }
+//            }, 500);
+
+            final Iterator<String> it = images.keySet().iterator();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable(){
+                public void run(){
+                    if (it.hasNext()){
+                        String key = it.next();
+                        Bitmap value = images.get(key);
+                        imageView.setImageBitmap(value);
                         textView.setText(key);
-                        Log.d("Here",key);
-                        //timerHandler.postDelayed(this, 5000);
-                        SystemClock.sleep(1000);
+                        handler.postDelayed(this, 2500);
+                    }
                 }
-            };
-        };
-        timerRunnable.run();
+            }, 2500);
+        //}
     }
 }
