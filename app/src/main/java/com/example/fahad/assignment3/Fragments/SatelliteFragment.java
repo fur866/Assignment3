@@ -1,44 +1,26 @@
 package com.example.fahad.assignment3.Fragments;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.fahad.assignment3.AsyncTasks.DownloadImage;
+import com.example.fahad.assignment3.AsyncTasks.DownloadImageData;
 import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.R;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by Fahad on 23/05/2016.
@@ -94,7 +76,6 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
             this.progress.setProgress((int) (((float) this.images.size() / (float) total) * 100));
             if(images.size() >=  this.total)
             {
-                this.progress.dismiss();
                 showImagesSequentially();
             }
 
@@ -102,7 +83,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
 
     public void performNASARequest(String date)
     {
-        DownloadImage image =  new DownloadImage(getContext());
+        DownloadImageData image =  new DownloadImageData(getContext());
         image.delegate = this;
         image.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,api_endPoint, longitude, latitude, date, api_key);
     }
@@ -153,35 +134,19 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
 
     private void showImagesSequentially()
     {
-//        for (final Map.Entry<String, Bitmap> entry : images.entrySet()) {
-//
-//            final Bitmap value = entry.getValue();
-//            final String key = entry.getKey();
-
-
-//            handler.postDelayed(new Runnable(){
-//                public void run(){
-//                    imageView.setImageBitmap(value);
-//                    textView.setText(key);
-//                    Log.d("here", key);
-//
-//                    handler.postDelayed(this, 500);
-//                }
-//            }, 500);
-
-            final Iterator<String> it = images.keySet().iterator();
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable(){
-                public void run(){
-                    if (it.hasNext()){
-                        String key = it.next();
-                        Bitmap value = images.get(key);
-                        imageView.setImageBitmap(value);
-                        textView.setText(key);
-                        handler.postDelayed(this, 2500);
-                    }
+        final Iterator<String> it = images.keySet().iterator();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable(){
+            public void run(){
+                if (it.hasNext()){
+                    String key = it.next();
+                    Bitmap value = images.get(key);
+                    imageView.setImageBitmap(value);
+                    textView.setText(key);
+                    progress.dismiss();
+                    handler.postDelayed(this, 2500);
                 }
-            }, 2500);
-        //}
+            }
+        }, 2500);
     }
 }
