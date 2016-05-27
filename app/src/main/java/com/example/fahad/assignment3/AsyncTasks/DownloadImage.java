@@ -3,14 +3,17 @@ package com.example.fahad.assignment3.AsyncTasks;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.R;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,19 +36,22 @@ import java.util.ArrayList;
 /**
  * Created by Fahad on 23/05/2016.
  */
-public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
+public class DownloadImage extends AsyncTask<String,Void,Bitmap>{
 
     private Context context;
-    private ImageView imageView;
+    private String date;
+    public AsyncResponse delegate = null;
 
-    public DownloadImage(Context context,ImageView imageView)
+    public DownloadImage(Context context)
     {
         this.context = context;
-        this.imageView = imageView;
     }
 
     @Override
-    protected RequestCreator doInBackground(String... args) {
+    protected Bitmap doInBackground(String... args) {
+        this.date = args[3];
+
+
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https");
 
@@ -78,7 +85,6 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
 
             is = connection.getInputStream();
             String stringResult = parseStream(is, 200);
-            Log.d("Here", stringResult);
             return fetchImage(stringResult);
         }
         catch (MalformedURLException e)
@@ -112,14 +118,27 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
         return result.toString();
     }
 
-    private RequestCreator fetchImage(String imageURL)
+    private Bitmap fetchImage(String imageURL)
     {
         try {
             JSONObject object = new JSONObject(imageURL);
-
-                Log.d("Here2", object.getString("url"));
-                return Picasso.with(this.context)
-                        .load(object.getString("url"));
+            object.getString("url");
+            return Picasso.with(this.context).load(object.getString("url")).get();
+//                            @Override
+//                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+//                                image = bitmap;
+//                            }
+//
+//                            @Override
+//                            public void onBitmapFailed(Drawable errorDrawable) {
+//
+//                            }
+//
+//                            @Override
+//                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+//
+//                            }
+//                        });
 
 
         }
@@ -127,11 +146,16 @@ public class DownloadImage extends AsyncTask<String,Void,RequestCreator>{
         {
             Log.e("JSONException", e.toString());
         }
+        catch(IOException e)
+        {
+            Log.e("JSONException", e.toString());
+        }
+
         return null;
     }
 
     @Override
-    protected void onPostExecute(RequestCreator creator) {
-       creator.into(this.imageView);
+    protected void onPostExecute(Bitmap image) {
+        this.delegate.processFinish(image,this.date);
     }
 }

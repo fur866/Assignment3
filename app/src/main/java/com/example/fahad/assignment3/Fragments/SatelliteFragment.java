@@ -1,35 +1,74 @@
 package com.example.fahad.assignment3.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.fahad.assignment3.AsyncTasks.DownloadImage;
+import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.R;
+import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by Fahad on 23/05/2016.
  */
-public class SatelliteFragment extends Fragment {
+public class SatelliteFragment extends Fragment implements AsyncResponse{
 
     private String latitude;
     private String longitude;
-    private String date;
-    private final String api_key;//getSystem().getString(R.string.api_key);
-    private final String api_endPoint;//getResources().getString(R.string.api_endPoint);
+    private String api_key;
+    private String api_endPoint;
+    private HashMap<String,Bitmap> images;
+    private ImageView imageView;
+    private TextView textView;
+    private ProgressDialog progress;
+    private final int total = 5;
 
-    public SatelliteFragment(Context context)
+    @Override
+    public void onCreate(Bundle bundles)
     {
-        Resources resources = context.getResources();
+        super.onCreate(bundles);
+        Resources resources = getContext().getResources();
         api_key = resources.getString(R.string.api_key);
         api_endPoint = resources.getString(R.string.api_endPoint);
+        this.images = new HashMap<String, Bitmap>();
+        progress =new ProgressDialog(getContext());
+        progress.setMessage("Downloading Images");
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setCancelable(false);
+        progress.setMax(100);
+        progress.setProgress(0);
     }
 
     @Override
@@ -37,20 +76,51 @@ public class SatelliteFragment extends Fragment {
     {
         View view = inflater.inflate(R.layout.satellite_fragment_view, container,false);
 
+        progress.show();
+
         this.longitude = "150.8931239";
         this.latitude = "-34.424984";
-        this.date = "2015-05-01";
-        ImageView imageView = (ImageView) view.findViewById(R.id.satelliteImage);
-        performNASARequest(imageView);
+        this.imageView = (ImageView) view.findViewById(R.id.satelliteImage);
+        this.textView = (TextView) view.findViewById(R.id.satelliteText);
+        performNASARequestSequence();
 
         return view;
     }
 
-
-    public void performNASARequest(ImageView imageView)
+    @Override
+    public void processFinish(Bitmap image, String date)
     {
-        new DownloadImage(getContext(),imageView).execute(api_endPoint,longitude,latitude,date,api_key);
+            this.images.put(date,image);
+            this.progress.setProgress((int) (((float) this.images.size() / (float) total) * 100));
+            if(images.size() >=  this.total)
+            {
+                this.progress.dismiss();
+                showImagesSequentially();
+            }
+
     }
+
+    public void performNASARequest(String date)
+    {
+        DownloadImage image =  new DownloadImage(getContext());
+        image.delegate = this;
+        image.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,api_endPoint, longitude, latitude, date, api_key);
+    }
+
+    public void performNASARequestSequence()
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR,16);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        for(int i = 0; i < this.total; i++)
+        {
+            calendar.add(Calendar.DAY_OF_YEAR,-16);
+           // Log.d("Here",formatter.format(calendar.getTime()));
+            performNASARequest(formatter.format(calendar.getTime()));
+        }
+    }
+
     public void setLatitude(String latitude)
     {
         this.latitude = latitude;
@@ -59,11 +129,6 @@ public class SatelliteFragment extends Fragment {
     public void setLongitude(String longitude)
     {
         this.longitude = longitude;
-    }
-
-    public void setDate(String date)
-    {
-        this.date = date;
     }
 
     public String getLatitude()
@@ -86,8 +151,37 @@ public class SatelliteFragment extends Fragment {
         return this.api_endPoint;
     }
 
-    public String getDate()
+    private void showImagesSequentially()
     {
-        return this.date;
+//        for (final Map.Entry<String, Bitmap> entry : images.entrySet()) {
+//
+//            final Bitmap value = entry.getValue();
+//            final String key = entry.getKey();
+
+
+//            handler.postDelayed(new Runnable(){
+//                public void run(){
+//                    imageView.setImageBitmap(value);
+//                    textView.setText(key);
+//                    Log.d("here", key);
+//
+//                    handler.postDelayed(this, 500);
+//                }
+//            }, 500);
+
+            final Iterator<String> it = images.keySet().iterator();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable(){
+                public void run(){
+                    if (it.hasNext()){
+                        String key = it.next();
+                        Bitmap value = images.get(key);
+                        imageView.setImageBitmap(value);
+                        textView.setText(key);
+                        handler.postDelayed(this, 2500);
+                    }
+                }
+            }, 2500);
+        //}
     }
 }
