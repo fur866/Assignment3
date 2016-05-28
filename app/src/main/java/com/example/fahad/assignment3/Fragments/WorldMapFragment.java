@@ -1,5 +1,9 @@
 package com.example.fahad.assignment3.Fragments;
 
+import android.app.Service;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -35,10 +39,21 @@ public class WorldMapFragment extends Fragment implements OnMapReadyCallback{
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng currPos;
+
+        try {
+            // check if GPS enabled
+            LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            currPos = new LatLng(location.getLatitude(), location.getLongitude());
+        }
+        catch (SecurityException e)
+        {
+            //if something goes wrong, go to Sydney by default
+            currPos = new LatLng(-34, 151);
+        }
+        mMap.addMarker(new MarkerOptions().position(currPos).title("Current Position"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(currPos));
     }
 
 }
