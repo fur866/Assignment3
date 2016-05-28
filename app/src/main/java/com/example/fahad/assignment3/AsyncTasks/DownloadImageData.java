@@ -1,37 +1,26 @@
 package com.example.fahad.assignment3.AsyncTasks;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.example.fahad.assignment3.Interfaces.AsyncResponse;
-import com.example.fahad.assignment3.R;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Created by Fahad on 23/05/2016.
@@ -107,7 +96,7 @@ public class DownloadImageData extends AsyncTask<String,Void,Bitmap>{
         return null;
     }
 
-    public String parseStream(InputStream stream, int length) throws IOException, UnsupportedEncodingException {
+    public String parseStream(InputStream stream, int length) throws IOException{
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
         StringBuilder result = new StringBuilder();

@@ -1,6 +1,5 @@
 package com.example.fahad.assignment3.Fragments;
 
-import android.app.Service;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
@@ -18,13 +17,10 @@ import com.example.fahad.assignment3.MainActivity;
 import com.example.fahad.assignment3.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;

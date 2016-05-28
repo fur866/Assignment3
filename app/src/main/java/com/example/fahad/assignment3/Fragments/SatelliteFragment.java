@@ -7,20 +7,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.example.fahad.assignment3.AsyncTasks.DownloadImageData;
 import com.example.fahad.assignment3.Interfaces.AsyncResponse;
 import com.example.fahad.assignment3.MainActivity;
 import com.example.fahad.assignment3.R;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
