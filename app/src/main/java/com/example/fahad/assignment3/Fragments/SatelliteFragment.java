@@ -86,9 +86,8 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
             this.progress.setProgress((int) (((float) this.images.size() / (float) total) * 100));
             if(images.size() >=  this.total)
             {
-                showImagesSequentially();
+                    showImagesSequentially();
             }
-
     }
 
     public void performNASARequest(String date)
@@ -107,7 +106,6 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
         for(int i = 0; i < this.total; i++)
         {
             calendar.add(Calendar.DAY_OF_YEAR,-16);
-           // Log.d("Here",formatter.format(calendar.getTime()));
             performNASARequest(formatter.format(calendar.getTime()));
         }
     }
@@ -121,7 +119,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
     {
         this.longitude = longitude;
     }
-    
+
     private void showImagesSequentially()
     {
         final Iterator<String> it = images.keySet().iterator();
