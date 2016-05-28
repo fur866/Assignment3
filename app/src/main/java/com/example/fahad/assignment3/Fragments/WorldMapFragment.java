@@ -2,10 +2,14 @@ package com.example.fahad.assignment3.Fragments;
 
 import android.app.Service;
 import android.content.Context;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +20,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Fahad on 28/05/2016.
@@ -38,6 +48,34 @@ public class WorldMapFragment extends Fragment implements OnMapReadyCallback{
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                double latval = latLng.latitude;
+                double longval = latLng.longitude;
+                String addressStr = "";
+                try {
+                    Geocoder myLocation = new Geocoder(getContext(), Locale.getDefault());
+                    List<Address> myList = myLocation.getFromLocation(latval, longval, 1);
+                    Address address = (Address) myList.get(0);
+                    addressStr += address.getAddressLine(0) + ", ";
+                    addressStr += address.getAddressLine(1) + ", ";
+                    addressStr += address.getAddressLine(2);
+                }
+                catch (IOException e)
+                {
+
+                }
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng( latval,  longval))
+                        .title(addressStr)
+                        .rotation((float) -15.0)
+
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                );
+            }
+        });
 
         LatLng currPos;
 
