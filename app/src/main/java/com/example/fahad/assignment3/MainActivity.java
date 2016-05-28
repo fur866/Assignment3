@@ -17,9 +17,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+       setHomePage();
+    }
+
+    public void setHomePage()
+    {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.satelliteFragment, new WorldMapFragment());
+        fragmentTransaction.commit();
+    }
+
+    public void downloadImages(double latitude, double longitude)
+    {
+        SatelliteFragment fragment = new SatelliteFragment();
+        fragment.setLatitude(String.valueOf(latitude));
+        fragment.setLongitude(String.valueOf(longitude));
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.satelliteFragment, fragment);
         fragmentTransaction.commit();
     }
 }

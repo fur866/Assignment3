@@ -7,16 +7,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.example.fahad.assignment3.AsyncTasks.DownloadImageData;
 import com.example.fahad.assignment3.Interfaces.AsyncResponse;
+import com.example.fahad.assignment3.MainActivity;
 import com.example.fahad.assignment3.R;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -34,6 +38,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
     private HashMap<String,Bitmap> images;
     private ImageView imageView;
     private TextView textView;
+    private ImageView backButton;
     private ProgressDialog progress;
     private final int total = 5;
 
@@ -59,12 +64,17 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
         View view = inflater.inflate(R.layout.satellite_fragment_view, container,false);
 
         progress.show();
-
-        this.longitude = "150.8931239";
-        this.latitude = "-34.424984";
         this.imageView = (ImageView) view.findViewById(R.id.satelliteImage);
         this.textView = (TextView) view.findViewById(R.id.satelliteText);
         performNASARequestSequence();
+
+        backButton = (ImageView) view.findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)getActivity()).setHomePage();
+            }
+        });
 
         return view;
     }
@@ -111,27 +121,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
     {
         this.longitude = longitude;
     }
-
-    public String getLatitude()
-    {
-        return this.latitude;
-    }
-
-    public String getLongitude()
-    {
-        return this.longitude;
-    }
-
-    public String getApiKey()
-    {
-        return this.api_key;
-    }
-
-    public  String getApiEndPoint()
-    {
-        return this.api_endPoint;
-    }
-
+    
     private void showImagesSequentially()
     {
         final Iterator<String> it = images.keySet().iterator();
@@ -144,6 +134,7 @@ public class SatelliteFragment extends Fragment implements AsyncResponse{
                     imageView.setImageBitmap(value);
                     textView.setText(key);
                     progress.dismiss();
+                    backButton.setVisibility(View.VISIBLE);
                     handler.postDelayed(this, 2500);
                 }
             }
