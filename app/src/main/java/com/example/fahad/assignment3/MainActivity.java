@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.widget.FrameLayout;
 
 import com.example.fahad.assignment3.Fragments.SatelliteFragment;
+import com.example.fahad.assignment3.Fragments.WorldMapFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.satelliteFragment, new SatelliteFragment());
+        fragmentTransaction.replace(R.id.satelliteFragment, new WorldMapFragment());
         fragmentTransaction.commit();
     }
 }
